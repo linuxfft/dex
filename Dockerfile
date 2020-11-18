@@ -16,6 +16,7 @@ ARG GOPROXY
 
 COPY go.mod go.sum ./
 COPY api/v2/go.mod api/v2/go.sum ./api/v2/
+COPY connector/suc/go.mod connector/suc/go.sum ./connector/suc/
 RUN go mod download
 
 COPY . .

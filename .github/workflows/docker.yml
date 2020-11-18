@@ -20,7 +20,7 @@ jobs:
       - name: Calculate Docker image tags
         id: tags
         env:
-          DOCKER_IMAGES: "gubinempower/dex docker.pkg.github.com/masami10/dex/dex"
+          DOCKER_IMAGES: "gubinempower/dex docker.pkg.github.com/masami10/dex/dexd"
         run: |
           case $GITHUB_REF in
             refs/tags/*)  VERSION=${GITHUB_REF#refs/tags/};;

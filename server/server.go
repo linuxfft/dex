@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/dexidp/dex/connector/suc"
+	"github.com/masami10/dex/connector/suc"
 	"net/http"
 	"net/url"
 	"path"

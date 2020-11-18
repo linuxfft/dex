@@ -209,6 +209,7 @@ func (c *sucConnector) Login(ctx context.Context, s connector.Scopes, username, 
 	}else {
 		identity.UserID = strconv.Itoa(userInfo.Code)
 		identity.Username = username
+		identity.Email = username // email 为必填项，否则会导致登录失败
 		identity.EmailVerified = false
 		identity.PreferredUsername = username
 	}

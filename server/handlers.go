@@ -208,6 +208,26 @@ func (s *Server) discoveryHandler() (http.HandlerFunc, error) {
 	}), nil
 }
 
+func (s *Server) handleAuthorizationAnnoy(w http.ResponseWriter, r *http.Request)  {
+	authReq, err := s.parseAuthorizationRequest(r)
+	if err != nil {
+		s.logger.Errorf("Failed to parse authorization request: %v", err)
+		status := http.StatusInternalServerError
+		s.renderError(r, w, status, err.Error())
+		return
+	}
+
+	authReq.Expiry = s.now().Add(s.authRequestsValidFor)
+	if err := s.storage.CreateAuthRequest(*authReq); err != nil {
+		s.logger.Errorf("Failed to create authorization request: %v", err)
+		s.renderError(r, w, http.StatusInternalServerError, "Failed to connect to the database.")
+		return
+	}
+
+	http.Redirect(w, r, s.absPath("/auth", "suc")+"?req="+authReq.ID, http.StatusFound)
+	return
+}
+
 // handleAuthorization handles the OAuth2 auth endpoint.
 func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 	authReq, err := s.parseAuthorizationRequest(r)

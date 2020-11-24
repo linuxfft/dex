@@ -6,10 +6,12 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/dexidp/dex/connector"
 	vv "github.com/go-playground/validator/v10"
@@ -109,10 +111,6 @@ func (c *Config) openConnector(logger log.Logger) (*sucConnector, error) {
 		val  string
 	}{
 		{"rootUrl", c.RootUrl},
-		{"api_user", c.APIUser},
-		{"api_password", c.APIPassword},
-		{"systemCode", c.SystemCode},
-		{"InstanceCode", c.InstanceCode},
 	}
 
 	for _, field := range requiredFields {
@@ -176,18 +174,36 @@ func (c *sucConnector) ensureHttpClient() *resty.Client {
 	return client
 }
 
-func (c *sucConnector) doLoginAuth(ctx context.Context, username, password string) (sucLoginResp,error) {
+func (c *sucConnector) doLoginAuth(ctx context.Context, username, password string) (sucLoginResp, error) {
 	client := c.ensureHttpClient()
-	payload := sucLoginAuthReq{Domain: "local", Account: username, Password: password}
+
+	domain := "local"
+
+	uu := ""
+
+	ss := strings.Split(username, "\\")
+	if len(ss) == 2 {
+		domain = ss[0]
+		uu = ss[1]
+	}else {
+		uu = username
+	}
+
+	//payload := sucLoginAuthReq{Domain: "local", Account: username, Password: password}
+	payload := map[string]string{
+		"domain":   domain,
+		"account":  uu,
+		"password": password,
+	}
 	var r sucLoginResp
-	url := fmt.Sprintf("%s%s", c.RootUrl, "/auth")
-	resp, err := client.R().SetContext(ctx).SetBody(payload).Post(url)
+	url := fmt.Sprintf("%s%s", c.RootUrl, "/accounts/login")
+	resp, err := client.R().SetContext(ctx).SetQueryParams(payload).Get(url)
 	if err != nil {
 		c.logger.Errorf("Post Auth Login Error: %s", err.Error())
 		return r, err
 	}
 	body := resp.Body()
-	if err :=json.Unmarshal(body, &r); err != nil {
+	if err := json.Unmarshal(body, &r); err != nil {
 		return r, err
 	}
 	if !r.Success {
@@ -206,10 +222,10 @@ func (c *sucConnector) Login(ctx context.Context, s connector.Scopes, username, 
 
 	if userInfo, err := c.doLoginAuth(ctx, username, password); err != nil {
 		return identity, false, err
-	}else {
+	} else {
 		identity.UserID = strconv.Itoa(userInfo.Code)
 		identity.Username = username
-		identity.Email = username // email 为必填项，否则会导致登录失败
+		identity.Email = username
 		identity.EmailVerified = false
 		identity.PreferredUsername = username
 	}

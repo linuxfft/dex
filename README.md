@@ -126,3 +126,6 @@ on the Kubernetes Slack, or join the [dex-dev][dex-dev] mailing list.
 [dex-dev]: https://groups.google.com/forum/#!forum/dex-dev
 [slack]: slack://channel?team=T09NY5SBT&id=C011URMR41W
 [disclosure]: https://coreos.com/security/disclosure/
+
+
+<!-- Security scan triggered at 2025-09-01 23:49:07 -->

@@ -139,3 +139,5 @@ on the Kubernetes Slack, or join the [dex-dev][dex-dev] mailing list.
 <!-- Security scan triggered at 2026-08-31 16:47:42 -->
 
 <!-- Security scan triggered at 2026-08-31 16:39:19 -->
+
+<!-- Security scan triggered at 2026-08-31 18:29:33 -->
